@@ -15,7 +15,7 @@ configuracao = './cfg/yolov3-spp_best.cfg'
 model = cv2.dnn.readNet(pesos, configuracao)
 
 # teste incial com apenas uma imagem
-img = cv2.imread('./data/samples/img7.png')
+img = cv2.imread('./data/samples/img6.jpg')
 width = img.shape[1]  # no cv2 width aparece na segunda posição
 height = img.shape[0] # height aparece na primeira posição
 #scale = 0.00392

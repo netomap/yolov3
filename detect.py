@@ -3,7 +3,7 @@ import argparse
 from models import *  # set ONNX_EXPORT in models.py
 from utils.datasets import *
 from utils.utils import *
-
+import sys
 
 def detect(save_img=False):
     imgsz = (320, 192) if ONNX_EXPORT else opt.img_size  # (320, 192) or (416, 256) or (608, 352) for (height, width)
@@ -12,6 +12,7 @@ def detect(save_img=False):
 
     # Initialize
     device = torch_utils.select_device(device='cpu' if ONNX_EXPORT else opt.device)
+
     if os.path.exists(out):
         shutil.rmtree(out)  # delete output folder
     os.makedirs(out)  # make new output folder
@@ -32,7 +33,7 @@ def detect(save_img=False):
         modelc = torch_utils.load_classifier(name='resnet101', n=2)  # initialize
         modelc.load_state_dict(torch.load('weights/resnet101.pt', map_location=device)['model'])  # load weights
         modelc.to(device).eval()
-
+    
     # Eval mode
     model.to(device).eval()
 
@@ -76,9 +77,12 @@ def detect(save_img=False):
     # Run inference
     t0 = time.time()
     img = torch.zeros((1, 3, imgsz, imgsz), device=device)  # init img
+    print ('img_t shape ', img.shape)
     _ = model(img.half() if half else img.float()) if device.type != 'cpu' else None  # run once
     for path, img, im0s, vid_cap in dataset:
         img = torch.from_numpy(img).to(device)
+        print ('shape: ', img.shape)
+
         img = img.half() if half else img.float()  # uint8 to fp16/32
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
         if img.ndimension() == 3:
@@ -87,15 +91,27 @@ def detect(save_img=False):
         # Inference
         t1 = torch_utils.time_synchronized()
         pred = model(img, augment=opt.augment)[0]
+        print ('predi: ', pred.shape)
+        
         t2 = torch_utils.time_synchronized()
 
         # to float
         if half:
             pred = pred.float()
+        
+        print ('classes: ', opt.classes)
+        print ('conf_thres: ', opt.conf_thres)
+        print ('iou_thres: ', opt.iou_thres)
 
         # Apply NMS
         pred = non_max_suppression(pred, opt.conf_thres, opt.iou_thres,
                                    multi_label=False, classes=opt.classes, agnostic=opt.agnostic_nms)
+        
+        pred = pred[0]
+        for k, detection in enumerate(pred):
+            print (k, '-', detection)
+
+        sys.exit()
 
         # Apply Classifier
         if classify:
