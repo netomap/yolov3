@@ -19,14 +19,12 @@
 *.avi
 *.data
 *.json
-!output/*.png
 
-*.cfg
-!cfg/yolov3*.cfg
+!teste*.jpg
 
 storage.googleapis.com
 runs/*
-data/*
+
 !data/samples/zidane.jpg
 !data/samples/bus.jpg
 !data/coco.names
@@ -53,6 +51,8 @@ gcp_test*.sh
 *.mlmodel
 darknet53.conv.74
 yolov3-tiny.conv.15
+
+!yolov3-tiny.weights
 
 # GitHub Python GitIgnore ----------------------------------------------------------------------------------------------
 # Byte-compiled / optimized / DLL files
