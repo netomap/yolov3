@@ -3,7 +3,6 @@ import argparse
 from models import *  # set ONNX_EXPORT in models.py
 from utils.datasets import *
 from utils.utils import *
-import sys
 
 def detect(save_img=False):
     imgsz = (320, 192) if ONNX_EXPORT else opt.img_size  # (320, 192) or (416, 256) or (608, 352) for (height, width)
@@ -107,12 +106,6 @@ def detect(save_img=False):
         pred = non_max_suppression(pred, opt.conf_thres, opt.iou_thres,
                                    multi_label=False, classes=opt.classes, agnostic=opt.agnostic_nms)
         
-        pred = pred[0]
-        for k, detection in enumerate(pred):
-            print (k, '-', detection)
-
-        sys.exit()
-
         # Apply Classifier
         if classify:
             pred = apply_classifier(pred, modelc, img, im0s)
