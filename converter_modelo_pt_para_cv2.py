@@ -1,6 +1,6 @@
 from models import *
 
-model_cfg = './cfg/yolov3-spp_best.cfg'
-model_weights = './weights/best.pt'
+model_cfg = './weights/yolov3-tiny-80-classes/yolov3.cfg'
+model_weights = './weights/yolov3-tiny-80-classes/yolov3-tiny.weights'
 
 convert(model_cfg, model_weights)

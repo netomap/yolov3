@@ -14,24 +14,34 @@ import matplotlib.pyplot as plt
 device = torch.device('cpu')
 
 # iniciando o modelo
+
+tipo_modelo = 'yolov3-tiny-1-classe'
+
 imgsz = 416
-model_cfg = '/content/yolov3/cfg/yolov3-tiny.cfg'
-model_weights = '/content/yolov3/weights/best.pt'
+model_cfg = './weights/' + tipo_modelo + '/yolov3.cfg'
+model_weights = './weights/' + tipo_modelo + '/yolov3.pt'
 model = Darknet(model_cfg, imgsz)
 
 model.load_state_dict(torch.load(model_weights, map_location=device)['model'])
+
+checkpoint = torch.load(model_weights, map_location=device)
+chaves = checkpoint.keys()
+print ('epoch: ', checkpoint['epoch'])
+print ('best_fitness: ', checkpoint['best_fitness'])
+#print ('training_results: ', checkpoint['training_results'])
+#print ('optimizer: ', checkpoint['optimizer'])
 
 # configurando modelo para device e fazer somente inferências
 model.to(device).eval()
 
 # carregando nomes das classes
-class_file = open('/content/yolov3/data/classes.names', 'r')
+class_file = open('./data/classes.names', 'r')
 classes = class_file.readlines()
 class_file.close()
 classes = [nome.strip() for nome in classes]
 print (classes)
 
-img_path = '/content/yolov3/data/samples/teste4.jpg'
+img_path = './data/samples/teste3.jpg'
 img = cv2.imread(img_path)
 print ('tamanho original da imagem: {}'.format(img.shape))
 
@@ -57,10 +67,9 @@ print ('tensor shape: ', img.shape)
 inicio = time.time()
 pred = model(img)[0]
 tempo = round(time.time()-inicio, 2)
-print ('tempo de inferencia %02f segundos com yolov3-spp.cfg - 2 classes.' % tempo)
 
 # retirando os boxes repetidos
-pred = non_max_suppression(pred, 0.3, 0.6, multi_label=False, classes=None)
+pred = non_max_suppression(pred, 0.1, 0.4, multi_label=False, classes=None)
 
 # pegando de fato das detecções
 pred = pred[0]
@@ -73,19 +82,19 @@ def imprime_deteccoes(img_path, new_w, new_h, detections, classes, texto):
     img_h = img_pil.height
     draw = ImageDraw.Draw(img_pil)
     for d in detections:
-        cor = (0,0,0) if d[-1] == 0 else (255, 255, 255)
+        cor = (255, 255, 255)
         x0, y0, x1, y1 = d[0]*img_w/new_w, d[1]*img_h/new_h, d[2]*img_w/new_w, d[3]*img_h/new_h, 
         draw.rectangle([x0, y0, x1, y1], fill=None, outline=cor, width=2)
     
     return img_pil
 
-if (pred): # se o vetor pred tem alguma predição, se não é None, então
+if (pred != None): # se o vetor pred tem alguma predição, se não é None, então
 
   # e transformando em um vetor numpy
   detections = pred.detach().numpy()
   print ('detections: ', detections)
 
-  texto = 'Detecção usando {} em {} segundos com {} detecções.'.format(model_cfg, tempo, len(detections))
+  texto = 'Detecção usando {} em {} segundos com {} detecções.'.format(tipo_modelo, tempo, len(detections))
   nova_imagem = imprime_deteccoes(img_path, new_w, new_h, detections, classes, texto)
   plt.imshow(nova_imagem)
   plt.xticks([])

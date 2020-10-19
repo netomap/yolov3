@@ -21,6 +21,7 @@
 *.json
 
 !teste*.jpg
+!Comparacao*.png
 
 storage.googleapis.com
 runs/*
@@ -51,8 +52,6 @@ gcp_test*.sh
 *.mlmodel
 darknet53.conv.74
 yolov3-tiny.conv.15
-
-!yolov3-tiny.weights
 
 # GitHub Python GitIgnore ----------------------------------------------------------------------------------------------
 # Byte-compiled / optimized / DLL files
