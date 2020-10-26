@@ -59,6 +59,9 @@ def detecta_objetos(tipo_modelo, img_path, img_pil, new_w, new_h, cor_box, conf_
     tempo = round(time.time()-inicio, 2)
 
     # retirando os boxes repetidos
+    print (pred.shape)
+    print (pred[0][0])
+    sys.exit()
     pred = non_max_suppression(pred, conf_thres, iou_thres, multi_label=False, classes=None)
 
     # pegando de fato das detecções
@@ -87,17 +90,17 @@ def detecta_objetos(tipo_modelo, img_path, img_pil, new_w, new_h, cor_box, conf_
 
 #tipo_modelo = 'yolov3-tiny-1-classe'
 #tipo_modelo = 'yolov3-tiny-80-classes'
-tipo_modelo = 'yolov3-spp-80-classes'
+tipo_modelo = 'yolov3-spp-1-classe'
 new_w = 512 #512 para spp ou 674 para tiny
 new_h = 316 #316 para spp ou 416 para tiny
-img_path = './data/samples/teste8.jpg'
+img_path = './data/samples/teste2.jpg'
 img_pil = Image.open(img_path)
 conf_thres = 0.1
 iou_thres = 0.1
 
-img1, texto1 = detecta_objetos('yolov3-tiny-80-classes', img_path, img_pil, 674, 416, vermelho, 0.5, 0.1)
+img1, texto1 = detecta_objetos('yolov3-tiny-1-classe', img_path, img_pil, 674, 416, vermelho, 0.5, 0.1)
 
-img2, texto2 = detecta_objetos('yolov3-tiny-1-classe', img_path, img1, 674, 416, verde, 0.1, 0.1)
+img2, texto2 = detecta_objetos('yolov3-tiny-80-classes', img_path, img1, 674, 416, verde, 0.1, 0.1)
 
 img3, texto3 = detecta_objetos('yolov3-spp-1-classe', img_path, img1, 512, 316, azul, 0.1, 0.1)
 
@@ -110,4 +113,6 @@ plt.text(0, 50, texto2, {'color': 'green'})
 plt.text(0, 75, texto3, {'color': 'blue'})
 plt.xticks([])
 plt.yticks([])
-plt.show()
+
+plt.savefig('./resultado.jpg')
+#plt.show()
