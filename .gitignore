@@ -19,14 +19,12 @@
 *.avi
 *.data
 *.json
-!output/*.png
 
-*.cfg
-!cfg/yolov3*.cfg
+!data/samples/*.jpeg
 
 storage.googleapis.com
 runs/*
-data/*
+
 !data/samples/zidane.jpg
 !data/samples/bus.jpg
 !data/coco.names
@@ -48,6 +46,8 @@ gcp_test*.sh
 
 # Neural Network weights -----------------------------------------------------------------------------------------------
 *.weights
+!weights/yolov3-tiny.weights
+
 *.pt
 *.onnx
 *.mlmodel
