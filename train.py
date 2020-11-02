@@ -17,10 +17,19 @@ except:
     print('Apex recommended for faster mixed precision training: https://github.com/NVIDIA/apex')
     mixed_precision = False  # not installed
 
-wdir = 'weights' + os.sep  # weights dir
-last = wdir + 'last.pt'
-best = wdir + 'best.pt'
-results_file = 'results.txt'
+# ######################### MINHAS ALTERAÇÕES  ##################################################
+
+#wdir = 'weights' + os.sep  # weights dir
+#last = wdir + 'last.pt'
+#best = wdir + 'best.pt'
+#results_file = 'results.txt'
+
+# ######################### MINHAS ALTERAÇÕES  ##################################################
+import requests
+def enviar_mensagem(mensagem):
+  link = 'https://api.telegram.org/bot805362620:AAG6dQ1NM-slPHfZFBLBWr51myFET-Wp7Vk/sendMessage?chat_id=613404177&text='
+  link = link + mensagem
+  resposta = requests.get(link)
 
 # Hyperparameters
 hyp = {'giou': 3.54,  # giou loss gain
@@ -62,6 +71,12 @@ def train(hyp):
     accumulate = max(round(64 / batch_size), 1)  # accumulate n times before optimizer update (bs 64)
     weights = opt.weights  # initial training weights
     imgsz_min, imgsz_max, imgsz_test = opt.img_size  # img sizes (min, max, test)
+
+    # minhas alterações ##################################################################
+    wdir = opt.wdir
+    last = wdir + 'last.pt'
+    best = wdir + 'best.pt'
+    results_file = wdir + 'results.txt'
 
     # Image Sizes
     gs = 32  # (pixels) grid size
@@ -367,7 +382,9 @@ def train(hyp):
                 torch.save(ckpt, best)
             del ckpt
 
-        # end epoch ----------------------------------------------------------------------------------------------------
+        # end epoch
+        enviar_mensagem('final da época {}'.format(epoch))
+        # ----------------------------------------------------------------------------------------------------
     # end training
 
     n = opt.name
@@ -391,6 +408,7 @@ def train(hyp):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
+    parser.add_argument('--wdir', type=str, default='')  # nome do diretório que vai salvar os checkpoints
     parser.add_argument('--epochs', type=int, default=300)  # 500200 batches at bs 16, 117263 COCO images = 273 epochs
     parser.add_argument('--batch-size', type=int, default=16)  # effective bs = batch_size * accumulate = 16 * 4 = 64
     parser.add_argument('--cfg', type=str, default='cfg/yolov3-spp.cfg', help='*.cfg path')
