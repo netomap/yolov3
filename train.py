@@ -9,6 +9,7 @@ import test  # import test.py to get mAP after each epoch
 from models import *
 from utils.datasets import *
 from utils.utils import *
+import time
 
 mixed_precision = True
 try:  # Mixed precision training https://github.com/NVIDIA/apex
@@ -26,10 +27,16 @@ except:
 
 # ######################### MINHAS ALTERAÇÕES  ##################################################
 import requests
-def enviar_mensagem(mensagem):
-  link = 'https://api.telegram.org/bot805362620:AAG6dQ1NM-slPHfZFBLBWr51myFET-Wp7Vk/sendMessage?chat_id=613404177&text='
-  link = link + mensagem
-  resposta = requests.get(link)
+def editar_mensagem(mensagem, chat_id=None, message_id=None):
+    mensagem = mensagem + ' em ' + time.strftime("%d/%m, %H:%M")
+    if ((chat_id !=None) and (message_id != None)):
+        link = 'https://api.telegram.org/bot805362620:AAG6dQ1NM-slPHfZFBLBWr51myFET-Wp7Vk/editMessageText?text={}&chat_id={}&message_id={}'.format(mensagem, chat_id, message_id)
+    else:
+        link = 'https://api.telegram.org/bot805362620:AAG6dQ1NM-slPHfZFBLBWr51myFET-Wp7Vk/sendMessage?chat_id=613404177&text={}'.format(mensagem)
+
+    resposta = requests.get(link)
+    resposta = resposta.json()
+    return (resposta['result']['message_id'], resposta['result']['chat']['id'], resposta['result']['text'])
 
 # Hyperparameters
 hyp = {'giou': 3.54,  # giou loss gain
@@ -71,6 +78,8 @@ def train(hyp):
     accumulate = max(round(64 / batch_size), 1)  # accumulate n times before optimizer update (bs 64)
     weights = opt.weights  # initial training weights
     imgsz_min, imgsz_max, imgsz_test = opt.img_size  # img sizes (min, max, test)
+
+    message_id, chat_id, last_text = editar_mensagem(mensagem='iniciando treinamento')
 
     # minhas alterações ##################################################################
     wdir = opt.wdir
@@ -383,9 +392,11 @@ def train(hyp):
             del ckpt
 
         # end epoch
-        enviar_mensagem('final da época {}'.format(epoch))
+        precisao, recall, map, f1 = results[0], results[1], results[2], results[3]
+        message_id, chat_id, last_text = editar_mensagem(mensagem=last_text+'\nepoca: {}, pre: {}, recall: {}, map:{}, f1: {}'.format(epoch, precisao, recall, map, f1), chat_id=chat_id, message_id=message_id)
         # ----------------------------------------------------------------------------------------------------
     # end training
+    editar_mensagem(mensagem=last_text+'\nfim!', chat_id=chat_id, message_id=message_id)
 
     n = opt.name
     if len(n):
