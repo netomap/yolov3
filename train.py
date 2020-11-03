@@ -392,8 +392,11 @@ def train(hyp):
             del ckpt
 
         # end epoch
-        precisao, recall, map, f1 = results[0], results[1], results[2], results[3]
-        message_id, chat_id, last_text = editar_mensagem(mensagem=last_text+'\nepoca: {}, pre: {}, recall: {}, map:{}, f1: {}'.format(epoch, precisao, recall, map, f1), chat_id=chat_id, message_id=message_id)
+        precisao = round(100*results[0])
+        recall = round(100*results[1])
+        map_ = round(100*results[2])
+        f1 = round(100*results[3])
+        message_id, chat_id, last_text = editar_mensagem(mensagem=last_text+'\nepoca: {}, pre: {}%, recall: {}, map:{}%, f1: {}%'.format(epoch, precisao, recall, map_, f1), chat_id=chat_id, message_id=message_id)
         # ----------------------------------------------------------------------------------------------------
     # end training
     editar_mensagem(mensagem=last_text+'\nfim!', chat_id=chat_id, message_id=message_id)
